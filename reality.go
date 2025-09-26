@@ -1,14 +1,12 @@
 package reality
 
 import (
-	"math"
 	"sort"
 )
 
 // CalculateSingleEntryReality is used for calculating how much reality this record donated
 func CalculateSingleEntryReality(score ScoreRecord, chartRepo ChartInformationRepository) (float64, error) {
 	chartId := score.GetChartID()
-
 	difficulty, err := chartRepo.GetDifficulty(chartId)
 	if err != nil {
 		return 0, err
@@ -18,49 +16,27 @@ func CalculateSingleEntryReality(score ScoreRecord, chartRepo ChartInformationRe
 		return 0, nil
 	}
 
-	const (
-		b          = 3.1
-		k          = 3.65
-		range1     = 0.8
-		range2     = 0.7
-		limitScore = 100_5000.0
-		offset     = -0.5
-	)
-
-	s := score.GetScore()
-	if s > limitScore {
-		s = limitScore
-	}
-
-	var value float64
+	bestScore := score.GetScore()
 	switch {
-	case s < 70_0000:
+	case bestScore >= 1000000:
+		return difficulty + 1.5, nil
+	case bestScore >= 850000:
+		return difficulty + float64(bestScore-850000)/100000.0, nil
+	case bestScore >= 700000:
+		result := difficulty*(0.5+float64(bestScore-700000)/300000.0) + float64(bestScore-850000)/100000.0
+		if result < 0 {
+			return 0, nil
+		}
+		return result, nil
+	case bestScore >= 600000:
+		result := (difficulty - 3) * float64(bestScore-600000) / 200000.0
+		if result < 0 {
+			return 0, nil
+		}
+		return result, nil
+	default:
 		return 0, nil
-
-	case s < 98_0000:
-		// Linear mapping from [700k..980k] onto [-1..0]
-		value = s/(98_0000-700000) + (-1 - ((0-(-1))/(98_0000-float64(70_0000)))*70_0000)
-
-	case s < 99_5000:
-		x1 := (s - 98_0000) / (99_5000 - 98_0000)
-		top := math.Exp(b*x1) - 1
-		bottom := math.Exp(b) - 1
-		value = top / bottom * range1
-
-	case s < 100_5000:
-		x2 := (s - 99_5000) / (100_5000 - 99_5000)
-		bot := 1 + math.Exp(-k*x2)
-		value = (1/bot-0.5)*2*range2 + range1
-
-	case s <= 101_0000:
-		value = 1.5
 	}
-
-	ret := difficulty + value + offset
-	if ret > 0 {
-		return ret, nil
-	}
-	return 0, nil
 }
 
 func calculateTotalRealityFromValues(values []float64) float64 {

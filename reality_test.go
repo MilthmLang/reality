@@ -53,6 +53,16 @@ func TestSingleRecordValue(t *testing.T) {
 	}
 }
 
+func TestEmptyRecordReality(t *testing.T) {
+	result, err := CalculateReality([]ScoreRecord{}, simpleChartRepo)
+	if err != nil {
+		t.Error(err)
+	}
+	if math.Abs(result) >= 1e8 {
+		t.Errorf("result should be 3.5")
+	}
+}
+
 func TestSingleRecordReality(t *testing.T) {
 	score := SimpleScoreRecord{
 		ChartID: "1",

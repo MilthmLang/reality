@@ -1,6 +1,6 @@
 # Milthm Reality
 
-Go module `milthm.dev/reality/v2` for computing reality scores based on song records.
+Go module `milthm.dev/reality/v3` for computing reality scores based on song records.
 
 ## Features
 
@@ -10,7 +10,7 @@ Go module `milthm.dev/reality/v2` for computing reality scores based on song rec
 ## Installation
 
 ```bash
-go get milthm.dev/reality/v2
+go get milthm.dev/reality/v3
 ```
 
 ## Usage
@@ -31,3 +31,7 @@ func main() {
     fmt.Println("Total reality:", total)
 }
 ```
+
+## Plot
+
+![Score vs Reality plot](image/plot.png)
